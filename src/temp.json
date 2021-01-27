@@ -1,0 +1,24 @@
+{
+      "Employees": [
+          {
+              "EMPID": "0001",
+              "EMPNAME": "EMP1",
+               "DOJ": "01/21/2011",
+              "MOBILENO": "87878787878",
+              "STATUS": "ACTIVE",
+              "STATE": "ANDHRA PRADESH",
+              "CITY": "HYDERBAD"
+          },
+          {
+                "EMPID": "0002",
+                "EMPNAME": "EMP2",
+                "DOJ": "01/21/2019",
+               "MOBILENO": "87878787878",
+                "STATUS": "INACTIVE",
+                "STATE": "ANDHRA PRADESH",
+                "CITY":"HYDERBAD"
+          }
+      ],
+      "status": true,
+      "Message": "Success"
+  }
