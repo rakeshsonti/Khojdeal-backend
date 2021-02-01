@@ -18,15 +18,15 @@ This is simple data parsing app whoose take json data from employee and parse th
 
 -  -  for hasing the password and comparing the password
 
-   -  **cors**:
+-  **cors**:
 
 -  -  for making cross browser request.
 
-   -  **nodemailer**:
+-  **nodemailer**:
 
 -  -  for sending email.
 
-   -  **express-session**:
+-  **express-session**:
 
 -  -  for mantaining the session.
 
