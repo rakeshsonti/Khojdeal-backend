@@ -13,13 +13,21 @@ This is simple data parsing app whoose take json data from employee and parse th
 -  "mongoose": "^5.11.13",
 -  "nodemailer": "^6.4.17",
 -  "nodemon": "^2.0.7"
+
    **bcrypt** :
+
 -  for hasing the password and comparing the password
+
    **cors**:
+
 -  for making cross browser request.
+
    **nodemailer**:
+
 -  for sending email.
+
    **express-session**:
+
 -  for mantaining the session.
 
 ## Various endpoint:
