@@ -16,19 +16,19 @@ This is simple data parsing app whoose take json data from employee and parse th
 
 -  **bcrypt** :
 
--  -  for hasing the password and comparing the password
+   -  for hasing the password and comparing the password
 
 -  **cors**:
 
--  -  for making cross browser request.
+   -  for making cross browser request.
 
 -  **nodemailer**:
 
--  -  for sending email.
+   -  for sending email.
 
 -  **express-session**:
 
--  -  for mantaining the session.
+   -  for mantaining the session.
 
 ## Various endpoint:
 
