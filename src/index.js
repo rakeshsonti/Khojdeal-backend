@@ -71,37 +71,62 @@ app.post("/saveData", async (req, res) => {
    await newemployee.save();
    res.send("employee saved!");
 });
-app.get("/allUser", async (req, res) => {
-   // const alluser = await employee.find().count({ USERSTATUS: "updated" });
-   const allDistinctDate = await employee
-      .find()
-      .distinct("DOJ")
-      .then(async (allDistinctDate) => {
-         console.log("date:", allDistinctDate);
-         let abc = await allDistinctDate
-            .map(async (val) => {
-               return await employee
-                  .find({
-                     DOJ: allDistinctDate[0],
-                     STATUS: "active",
-                     USERSTATUS: "added",
-                  })
-                  .count();
-            })
-            .then((r) => {
-               return r;
-            });
-         // return await abc;
-      })
-      .then((r) => {
-         console.log("final res:", r);
-      });
-
-   // console.log(res1);
-
-   // res.send({ data: res1 });
-   res.send("ok");
+const AuthMiddleware = async (req, res, next) => {
+   if (
+      isNullOrUndefined(req.session) ||
+      isNullOrUndefined(req.session.userId)
+   ) {
+      res.status(401).send({ err: "not logged in" });
+   } else {
+      next();
+   }
+};
+//------------------------------------
+app.post("/userData", AuthMiddleware, async (req, res) => {
+   const bd = req.body;
+   console.log(bd.USERSTATUS, bd.DOJ);
+   const users = await employee.find({
+      USERSTATUS: bd.USERSTATUS,
+      DOJ: bd.DOJ,
+   });
+   console.log(users);
+   res.send({ users: users });
 });
+app.get("/allActiveUser", async (req, res) => {
+   const allActiveUser = await employee.find({ STATUS: "active" }).count();
+   console.log(allActiveUser);
+   res.send({ success: allActiveUser });
+});
+app.post("/allUser", AuthMiddleware, async (req, res) => {
+   const { date } = req.body;
+   console.log(date);
+   const users = await employee.find({ DOJ: date });
+   res.send({ user: users });
+});
+app.get("/allUserCount", AuthMiddleware, async (req, res) => {
+   const allUser = await employee.distinct("DOJ");
+   const resul2 = await Promise.all(
+      allUser.map(async (value, index) => {
+         let arr = [];
+         arr[0] = value;
+         arr[1] = await employee.find({ DOJ: value }).count();
+         arr[2] = await employee
+            .find({ DOJ: value, USERSTATUS: "added" })
+            .count();
+         arr[3] = await employee
+            .find({ DOJ: value, USERSTATUS: "updated" })
+            .count();
+         arr[4] = await employee
+            .find({ DOJ: value, USERSTATUS: "rejected" })
+            .count();
+         return arr;
+      })
+   );
+   console.log(resul2);
+   res.send({ success: resul2 });
+});
+
+//---------------------------------
 app.post("/login", async (req, res) => {
    const { email, password } = req.body;
    const existingUser = await user.findOne({ email });
@@ -150,16 +175,11 @@ app.get("/logout", async (req, res) => {
       res.sendStatus(200);
    }
 });
-const AuthMiddleware = async (req, res, next) => {
-   if (
-      isNullOrUndefined(req.session) ||
-      isNullOrUndefined(req.session.userId)
-   ) {
-      res.status(401).send({ err: "not logged in" });
-   } else {
-      next();
-   }
-};
+app.get("/getName", async (req, res) => {
+   const user1 = await user.findById({ _id: req.session.userId });
+   console.log(user1);
+   res.send({ user: user1 });
+});
 app.get("/userinfo", AuthMiddleware, async (req, res) => {
    // console.log("id:", req.session.userId);
    // const user = await user.findById(req.session.userId);
