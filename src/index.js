@@ -132,11 +132,13 @@ app.post("/sendEmail", async (req, res) => {
    arr[1] = await employee.find({ USERSTATUS: "added" }).count();
    arr[2] = await employee.find({ USERSTATUS: "updated" }).count();
    arr[3] = await employee.find({ USERSTATUS: "rejected" }).count();
+   //please use your email and password
+   // i put password as a dummy password (for security purpose)
    const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
          user: "ram.sonti.999@gmail.com",
-         pass: "ram.sonti",
+         pass: "xxxxxxxx",
       },
    });
    const mailOptions = {
