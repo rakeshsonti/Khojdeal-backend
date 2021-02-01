@@ -1,5 +1,6 @@
 const session = require("express-session");
 const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
 const session_secret = "Khojdeal";
 const cors = require("cors");
 const SALT = 10;
@@ -58,8 +59,8 @@ const userSchema = new mongoose.Schema({
    password: String,
 });
 //model for employee
-const employee = db.model("employee", empSchema);
-const user = db.model("User", userSchema);
+const employee = db.model("employees", empSchema);
+const user = db.model("Users", userSchema);
 
 const isNullOrUndefined = (value) => {
    return value === undefined || value === null;
@@ -84,22 +85,18 @@ const AuthMiddleware = async (req, res, next) => {
 //------------------------------------
 app.post("/userData", AuthMiddleware, async (req, res) => {
    const bd = req.body;
-   console.log(bd.USERSTATUS, bd.DOJ);
    const users = await employee.find({
       USERSTATUS: bd.USERSTATUS,
       DOJ: bd.DOJ,
    });
-   console.log(users);
    res.send({ users: users });
 });
-app.get("/allActiveUser", async (req, res) => {
+app.get("/allActiveUser", AuthMiddleware, async (req, res) => {
    const allActiveUser = await employee.find({ STATUS: "active" }).count();
-   console.log(allActiveUser);
    res.send({ success: allActiveUser });
 });
 app.post("/allUser", AuthMiddleware, async (req, res) => {
    const { date } = req.body;
-   console.log(date);
    const users = await employee.find({ DOJ: date });
    res.send({ user: users });
 });
@@ -122,10 +119,49 @@ app.get("/allUserCount", AuthMiddleware, async (req, res) => {
          return arr;
       })
    );
-   console.log(resul2);
    res.send({ success: resul2 });
 });
 
+app.post("/sendEmail", async (req, res) => {
+   const { email, name } = req.body;
+   const time = new Date();
+   const dateString = time.toDateString();
+   const timeString = time.toTimeString();
+   let arr = [];
+   arr[0] = await employee.find().count();
+   arr[1] = await employee.find({ USERSTATUS: "added" }).count();
+   arr[2] = await employee.find({ USERSTATUS: "updated" }).count();
+   arr[3] = await employee.find({ USERSTATUS: "rejected" }).count();
+   const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+         user: "ram.sonti.999@gmail.com",
+         pass: "ram.sonti",
+      },
+   });
+   const mailOptions = {
+      from: "ram.sonti.999@gmail.com",
+      to: email,
+      subject: "Data Parsing update",
+      text: `
+      Dear Stack holder: ${name},
+      Data Parsing Update for  Date: ${dateString} and time: ${timeString}.
+      Total number of User(s) Added: ${arr[1]}
+      Total User(s) Updated in the system: ${arr[2]}
+      Total User(s) Rejected in the system: ${arr[3]}
+      Total Active users in the system as of now : ${arr[0]}
+      Warm regards
+      Admin Team`,
+   };
+
+   transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+         console.log(error);
+      } else {
+         console.log("Email sent: " + info.response);
+      }
+   });
+});
 //---------------------------------
 app.post("/login", async (req, res) => {
    const { email, password } = req.body;
@@ -148,7 +184,6 @@ app.post("/login", async (req, res) => {
 });
 app.post("/signup", async (req, res) => {
    const { name, email, password } = req.body;
-   // console.log(name, email, password);
    const existingUser = await user.findOne({ email });
    if (!isNullOrUndefined(existingUser)) {
       res.status(401).send("username already exist");
@@ -177,12 +212,9 @@ app.get("/logout", async (req, res) => {
 });
 app.get("/getName", async (req, res) => {
    const user1 = await user.findById({ _id: req.session.userId });
-   console.log(user1);
    res.send({ user: user1 });
 });
 app.get("/userinfo", AuthMiddleware, async (req, res) => {
-   // console.log("id:", req.session.userId);
-   // const user = await user.findById(req.session.userId);
    if (req.session.userId) res.send();
    else res.status(401).send();
 });
